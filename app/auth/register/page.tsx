@@ -1,22 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // ページ遷移のためにimport
+import { useRouter } from "next/navigation";
 
-const LoginPage = () => {
+export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null); // エラーメッセージ用のstate
-  const router = useRouter(); // routerインスタンスを初期化
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null); // エラーメッセージをリセット
+    setError(null);
+    setMessage(null);
+    setLoading(true);
 
     try {
-      // 1. サーバーのログインAPIにリクエストを送信
-      const res = await fetch("/api/auth/login", {
-        // バックエンドのAPIエンドポイントを指定
+      // 1. 新規登録APIにリクエストを送信
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -24,33 +27,29 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      // レスポンスが成功でなければエラーを投げる
+      // 2. レスポンスの確認と処理
+      const data = await res.json();
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "ログインに失敗しました。");
+        throw new Error(data.message || "ユーザー登録に失敗しました。");
       }
 
-      // 2. レスポンスからJWTトークンを取得
-      const { token } = await res.json();
+      // 3. 成功メッセージの表示とリダイレクト
+      setMessage("ユーザー登録が完了しました。ログイン画面へ移動します...");
 
-      // 3. 取得したトークンをlocalStorageに保存
-      if (token) {
-        localStorage.setItem("token", token);
-        console.log("JWT Token:", token);
-        alert("ログインに成功しました！");
-        // 4. ログイン後、ホームに遷移
-        router.push("/");
-      } else {
-        throw new Error("トークンが取得できませんでした。");
-      }
+      // `alert`の代わりにカスタムメッセージを表示
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 2000);
     } catch (err: unknown) {
-      // 5. エラーが発生した場合の処理
-      console.error("Login failed:", err);
+      // 4. エラーメッセージの表示
+      console.error("Registration failed:", err);
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError("予期せぬエラーが発生しました。");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,11 +57,11 @@ const LoginPage = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white border border-gray-200 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center text-gray-900">
-          ログイン
+          新規登録
         </h1>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {/* Email入力フィールド */}
+          {/* メールアドレス入力フィールド */}
           <div>
             <label
               htmlFor="email"
@@ -81,7 +80,7 @@ const LoginPage = () => {
               className="w-full px-3 py-2 mt-1 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
-          {/* Password入力フィールド */}
+          {/* パスワード入力フィールド */}
           <div>
             <label
               htmlFor="password"
@@ -93,7 +92,7 @@ const LoginPage = () => {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -101,22 +100,24 @@ const LoginPage = () => {
             />
           </div>
 
-          {/* エラーメッセージの表示 */}
+          {/* メッセージとエラーの表示 */}
           {error && <p className="text-sm text-center text-red-500">{error}</p>}
+          {message && (
+            <p className="text-sm text-center text-green-500">{message}</p>
+          )}
 
-          {/* ログインボタン */}
+          {/* 登録ボタン */}
           <div>
             <button
               type="submit"
+              disabled={loading}
               className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md group hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Login
+              {loading ? "登録中..." : "登録"}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
