@@ -65,10 +65,10 @@ export default function HomePage() {
             <Home size={24} />
             <span className="text-xs mt-1">ホーム</span>
           </Link>
-          <a href="/scores/new" className="flex flex-col items-center">
+          <Link href="/scores/new" className="flex flex-col items-center">
             <Camera size={24} />
             <span className="text-xs mt-1">撮影</span>
-          </a>
+          </Link>
           <a href="/stats" className="flex flex-col items-center">
             <BarChart2 size={24} />
             <span className="text-xs mt-1">統計</span>
