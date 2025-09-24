@@ -30,6 +30,7 @@ model Score {
   score_picture String?
   user_id       Int
   song_id       Int
+  comment       String?
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
