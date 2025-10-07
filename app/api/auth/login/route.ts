@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { SignJWT } from "jose";
 import { compare } from "bcrypt";
-import { PrismaClient } from "../../../generated/prisma"; // PrismaClientをインポート
+import { prisma } from "../../../../lib/prisma";
 
-const prisma = new PrismaClient(); // PrismaClientのインスタンスを作成
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
 
 export async function POST(req: Request) {
