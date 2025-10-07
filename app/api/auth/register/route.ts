@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
-import { PrismaClient } from "../../../generated/prisma"; // PrismaClientをインポート
-
-const prisma = new PrismaClient();
+import { prisma } from "../../../../lib/prisma";
 
 export async function POST(req: Request) {
+  console.log("Register API called");
   try {
     const { email, password } = await req.json();
 

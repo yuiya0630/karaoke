@@ -33,13 +33,20 @@ export default function RegisterPage() {
         throw new Error(data.message || "ユーザー登録に失敗しました。");
       }
 
-      // 3. 成功メッセージの表示とリダイレクト
-      setMessage("ユーザー登録が完了しました。ログイン画面へ移動します...");
-
-      // `alert`の代わりにカスタムメッセージを表示
-      setTimeout(() => {
-        router.push("/auth/login");
-      }, 2000);
+      // 3. 成功時にトークンが返される場合は、自動ログインしてホームに遷移
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        setMessage("ユーザー登録が完了しました。ホーム画面に移動します...");
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+      } else {
+        // トークンがない場合は、ログイン画面に遷移
+        setMessage("ユーザー登録が完了しました。ログイン画面へ移動します...");
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 2000);
+      }
     } catch (err: unknown) {
       // 4. エラーメッセージの表示
       console.error("Registration failed:", err);
